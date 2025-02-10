@@ -43,12 +43,12 @@ fn main() -> io::Result<()> {
     // Graceful shutdown flag
     let running = Arc::new(AtomicBool::new(true));
 
-    // Handle SIGINT (Ctrl+C) for graceful shutdown
-    let mut signals = Signals::new(&[signal_hook::consts::SIGINT])?;
+    // Handle SIGTERM for graceful shutdown
+    let mut signals = Signals::new(&[signal_hook::consts::SIGTERM])?;
     let shutdown_flag = running.clone();
     thread::spawn(move || {
         for _ in signals.forever() {
-            println!("\nReceived SIGINT. Shutting down...");
+            println!("\nReceived SIGTERM. Shutting down...");
             shutdown_flag.store(false, Ordering::Relaxed);
             break;
         }
