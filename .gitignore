@@ -1,3 +1,4 @@
 # Ignore list
-./.gitignore
-./target/
+.gitignore
+Cargo.lock
+/target
