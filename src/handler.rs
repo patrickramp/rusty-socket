@@ -1,3 +1,4 @@
+use mime_guess::from_path;
 use std::{
     fs,
     io::{Read, Write},
@@ -116,39 +117,9 @@ pub fn handle_client(mut stream: TcpStream, base_dir: Arc<PathBuf>, index_file: 
     match sanitize_path(&base_dir, path, index_file) {
         Some(file_path) => match fs::read(&file_path) {
             Ok(contents) => {
-                // Determine content type for header
-                let content_type = match file_path.extension().and_then(|ext| ext.to_str()) {
-                    Some("html") | Some("htm") => "text/html",
-                    Some("js") => "application/javascript",
-                    Some("css") => "text/css",
-                    Some("png") => "image/png",
-                    Some("jpg") | Some("jpeg") => "image/jpeg",
-                    Some("ico") => "image/x-icon",
-                    Some("gif") => "image/gif",
-                    Some("webp") => "image/webp",
-                    Some("svg") => "image/svg+xml",
-                    Some("json") => "application/json",
-                    Some("xml") => "application/xml",
-                    Some("pdf") => "application/pdf",
-                    Some("zip") => "application/zip",
-                    Some("gz") => "application/gzip",
-                    Some("7z") => "application/x-7z-compressed",
-                    Some("rar") => "application/x-rar-compressed",
-                    Some("tar") => "application/x-tar",
-                    Some("mp3") => "audio/mpeg",
-                    Some("mp4") => "video/mp4",
-                    Some("webm") => "video/webm",
-                    Some("mpeg") => "video/mpeg",
-                    Some("m4a") => "audio/mp4",
-                    Some("ogg") | Some("oga") => "audio/ogg",
-                    Some("wav") => "audio/wav",
-                    Some("woff") => "font/woff",
-                    Some("woff2") => "font/woff2",
-                    Some("ttf") => "font/ttf",
-                    Some("otf") => "font/otf",
-                    Some("eot") => "application/vnd.ms-fontobject",
-                    _ => "text/plain",
-                };
+                // Use `mime_guess` to determine content type
+                let content_type = from_path(&file_path).first_or_octet_stream().to_string();
+
                 // Send response
                 send_response(&mut stream, "200 OK", Some(&contents), &content_type);
                 println!("Responded with 200 OK");

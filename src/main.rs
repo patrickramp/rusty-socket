@@ -28,7 +28,10 @@ fn main() -> io::Result<()> {
     // Create TCP listener with explicit binding
     let listener = TcpListener::bind(&config.address)?;
     listener.set_nonblocking(true)?; // Prevent blocking on slow clients
-    println!("opening rusty-socket on {}", config.address);
+
+    // Print configuration
+    println!("rusty-socket v0.1.1");
+    println!("Opening rusty-socket on {}", config.address);
     println!("Base directory: {:?}", &base_dir);
     println!("Index file: {}", config.index_file);
     println!("Thread count: {}", config.thread_count);
