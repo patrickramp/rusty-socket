@@ -38,12 +38,14 @@ pub struct ThreadPool {
     sender: Option<mpsc::Sender<Job>>, // Option to allow proper Drop handling
 }
 
+// Implement ThreadPool methods
 impl ThreadPool {
     pub fn new(size: usize) -> Self {
         assert!(size > 0, "Thread pool size must be greater than 0");
         let (sender, receiver) = mpsc::channel();
         let receiver = Arc::new(Mutex::new(receiver));
 
+        // Create workers
         let workers = (0..size)
             .map(|id| Worker::new(id, Arc::clone(&receiver)))
             .collect();
@@ -54,6 +56,7 @@ impl ThreadPool {
         }
     }
 
+    // Execute a closure on the thread pool
     pub fn execute<F>(&self, job: F)
     where
         F: FnOnce() + Send + 'static,
@@ -86,6 +89,7 @@ pub struct Worker {
     thread: Option<thread::JoinHandle<()>>,
 }
 
+// Implement Worker methods
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Self {
         let thread = thread::Builder::new()
