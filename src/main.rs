@@ -31,7 +31,7 @@ fn main() -> io::Result<()> {
 
     // Print configuration
     println!("rusty-socket v0.1.1");
-    println!("Opening rusty-socket on {}", config.address);
+    println!("Opening a rusty-socket @: {}", config.address);
     println!("Base directory: {:?}", &base_dir);
     println!("Index file: {}", config.index_file);
     println!("Thread count: {}", config.thread_count);
@@ -61,7 +61,7 @@ fn main() -> io::Result<()> {
     while running.load(Ordering::Relaxed) {
         match listener.accept() {
             Ok((stream, _)) => {
-                let base_dir = Arc::clone(&base_dir);
+                let base_dir = base_dir.clone();
                 let index_file = index_file.clone();
                 pool.execute(move || handle_client(stream, base_dir, &index_file));
             }
