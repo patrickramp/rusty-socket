@@ -29,7 +29,10 @@ fn sanitize_path(base_dir: &Path, requested_path: &str, index_file: &str) -> Opt
         Ok(clean_path) if clean_path.starts_with(base_dir) && clean_path.is_file() => {
             Some(clean_path)
         }
-        _ => None,
+        _ => {
+            eprintln!("Invalid path requested: {}", requested_path);
+            None
+        }
     }
 }
 
@@ -104,14 +107,8 @@ pub fn handle_client(mut stream: TcpStream, base_dir: Arc<PathBuf>, index_file: 
         return;
     }
 
-    let path = path.unwrap();
+    let path = path.unwrap_or_else(|| "/");
     println!("Requested path: {}", path);
-
-    // Reject unsupported methods
-    if method != Some("GET") {
-        send_response(&mut stream, "405 Method Not Allowed", None, "text/plain");
-        return;
-    }
 
     // Validate and sanitize requested path
     match sanitize_path(&base_dir, path, index_file) {
